@@ -130,14 +130,13 @@
       askAi(question);
       return;
     }
-    addMsg(res.text, 'bot');
 
     var found = toursByIds(res.tours);
     if (res.kind === 'notfound') {
-      addMsg('Передать менеджеру?', 'bot');
-      offerManager();
+      showNotFound(res.text);
       return;
     }
+    addMsg(res.text, 'bot');
     if (found.length) {
       state.offer = found.map(function (t) { return t.id; });
       renderTourChips(found);
@@ -165,10 +164,19 @@
     ]);
   }
 
-  function showNotFound() {
-    addMsg('К сожалению, не смог корректно обработать запрос — в демо-базе ' + tours.length +
-      ' туров, и по этому запросу ничего не подошло.', 'bot');
-    addMsg('Передать менеджеру?', 'bot');
+  /* Пустое состояние — один компактный блок вместо двух сообщений подряд. */
+  function showNotFound(engineText) {
+    var box = document.createElement('div');
+    box.className = 'msg bot notfound';
+    var title = document.createElement('b');
+    title.textContent = 'Не разобрал запрос';
+    var body = document.createElement('span');
+    body.textContent = engineText || ('К сожалению, не смог корректно обработать этот запрос — в демо-базе ' +
+      tours.length + ' туров, и по этому запросу ничего не подошло. Передать менеджеру?');
+    box.appendChild(title);
+    box.appendChild(body);
+    el.chat.appendChild(box);
+    el.chat.scrollTop = el.chat.scrollHeight;
     offerManager();
   }
 

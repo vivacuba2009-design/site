@@ -3,7 +3,7 @@
 
 :root {
   --bg: #F7F6F3;
-  --surface: #FFFFFF;
+  --surface: #FFFDF8;
   --surface-2: #EFEEE9;
   --ink: #16161A;
   --ink-2: #35353C;
@@ -73,7 +73,11 @@ summary:focus-visible, .back-link:focus-visible {
 .nav .cta:hover { background: var(--accent-dark); }
 
 @media (max-width: 760px) {
-  .nav { gap: 16px; padding: 0 20px; height: 60px; }
+  .nav { gap: 14px; padding: 0 18px; height: 60px; }
+  .nav a.link { font-size: 13px; }
+  .nav a.link[href='#faq'] { display: none; }
+}
+@media (max-width: 420px) {
   .nav a.link { display: none; }
 }
 
@@ -155,6 +159,7 @@ section.block > .wrap > p.lead { color: var(--ink-2); margin: 16px 0 0; max-widt
   transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
 }
 .chip:hover { border-color: var(--ink-2); color: var(--ink); background: var(--surface-2); }
+.chip:active { background: var(--surface-2); border-color: var(--accent); color: var(--accent); transform: translateY(0); }
 .chip.accent { border-color: var(--accent); color: var(--accent); font-weight: 500; }
 .chip.accent:hover { background: var(--accent-soft); color: var(--accent-dark); }
 
@@ -254,7 +259,7 @@ section[id] { scroll-margin-top: 84px; }
 @media (max-width: 960px) { .grid-3 { grid-template-columns: 1fr; } }
 .card { background: var(--surface); border: 1px solid var(--hair); border-radius: var(--radius); padding: 28px; }
 .card h3 { font-size: 19px; line-height: 1.3; font-weight: 500; letter-spacing: -0.005em; }
-.card p { color: var(--ink-2); font-size: 15px; line-height: 1.55; margin: 10px 0 0; }
+.card p { color: var(--ink-2); font-size: 14px; line-height: 1.5; margin: 10px 0 0; }
 
 /* ---------- steps ---------- */
 .steps { display: grid; gap: 0; margin-top: 40px; }
@@ -322,3 +327,10 @@ footer .contacts a[href^="tel:"] { white-space: nowrap; }
   color: var(--accent); background: var(--accent-soft); border-radius: var(--radius);
   padding: 4px 8px; white-space: nowrap;
 }
+/* ---------- пустое состояние в чате (P2.5) ---------- */
+.msg.notfound {
+  background: var(--surface-2); border: 1px solid var(--hair);
+  display: flex; flex-direction: column; gap: 5px; max-width: 100%;
+}
+.msg.notfound b { font-weight: 500; font-size: 14px; line-height: 1.35; }
+.msg.notfound span { color: var(--ink-2); font-size: 13px; line-height: 1.45; white-space: normal; }

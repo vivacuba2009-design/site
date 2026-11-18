@@ -194,10 +194,13 @@
   }
 
   function visaActionChips() {
+    var docsCount = state.visa && state.visa.documents ? state.visa.documents.length : 0;
+    var docsLabel = docsCount ? 'Документы (' + docsCount + ')' : 'Документы';
     var items = [
       { label: 'Сборы', act: 'ask', text: 'сколько стоит' },
-      { label: 'Документы', act: 'ask', text: 'какие документы' },
+      { label: docsLabel, act: 'ask', text: 'какие документы' },
       { label: 'Сроки', act: 'ask', text: 'сколько ждать' },
+      { label: 'Подача', act: 'ask', text: 'где подавать' },
       { label: 'Оставить заявку', act: 'lead', accent: true }
     ];
     return items;
@@ -205,8 +208,8 @@
 
   function contextQuestion(text) {
     var parts = [text];
-    if (state.visa) parts.push(state.visa);
-    if (state.country) parts.push('в ' + state.country);
+    if (state.visa && state.visa.name) parts.push(state.visa.name);
+    if (state.country && state.country.name) parts.push('в ' + state.country.name);
     return parts.join(' ');
   }
 
@@ -241,6 +244,7 @@
 
   function ask(text) {
     var res = window.VisaEngine.answer(contextQuestion(text), data);
+    if (res.kind === 'notfound') { showNotFound(); return; }
     addMsg(res.text, 'bot');
 
     // обновляем контекст, если движок распознал страну/визу
@@ -253,7 +257,6 @@
       if (v) state.visa = v;
     }
 
-    if (res.kind === 'notfound') { showNotFound(); return; }
     if (res.kind === 'types' || res.kind === 'country') {
       if (state.country) renderChips(typesChipsFor(state.country));
       else renderChips(countriesChips());

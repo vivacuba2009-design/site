@@ -125,7 +125,7 @@
     lines.push('• Сборы: ' + feesLine(v));
     if (v.submission_type) lines.push('• Подача: ' + v.submission_type);
     var docs = docsList(v);
-    if (docs.length) lines.push('• Документов: ' + docs.length + ' — спросите «какие документы»');
+    if (docs.length) lines.push('• Документов: ' + docs.length);
     return lines.join('\n');
   }
 

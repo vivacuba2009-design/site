@@ -123,6 +123,7 @@ summary:focus-visible, .back-link:focus-visible {
 .btn.ghost:hover { background: var(--surface-2); border-color: var(--ink-2); }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
+.eyebrow { margin: 0 0 var(--space-4); font-size: var(--text-micro); text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); }
 .proof { margin-top: var(--space-5); font-size: var(--text-ui); line-height: 1.5; color: var(--muted); }
 
 @media (max-width: 760px) {

@@ -13,7 +13,9 @@
 | `public/tours.json` | база демо: 11 вымышленных туров, новогодние даты |
 | `public/privacy.html` | политика конфиденциальности |
 | `public/404.html` | страница ошибки |
-| `src/index.js` | воркер: статика + `POST /api/chat` (ИИ только переформулирует, цифры из `tours.json`) |
+| `src/index.js` | воркер: статика + `POST /api/chat` (ИИ) + `/api/telegram/<hash>` (бот) |
+| `src/ai.js` | один ИИ-слой для сайта и бота: модель формулирует, числа проверяются по `tours.json` |
+| `src/telegram.js` | Telegram-бот: `/start`, кнопки направлений, туры, заявка в чат владельца |
 | `wrangler.jsonc` | Cloudflare Workers: `main` + статика из `public` через ASSETS |
 
 ## Правки
@@ -30,3 +32,16 @@
 - в код, `wrangler.jsonc` и `tours.json` ключ не кладём никогда.
 
 Правила ответа: ИИ берёт факты только из `tours.json`; числа в ответе проверяются (цена/даты/длительность должны быть в базе), иначе ответ отбрасывается. При недоступном API демо отвечает обычным движком.
+
+## Telegram-бот
+
+Тот же воркер, вебхук Telegram. Токен — секрет `SYNAPS_TELEGRAM_TOKEN` (в дашборде, как и ключ ИИ).
+Адрес вебхука содержит секретный путь: `https://synaps.bond/api/telegram/<первые 16 символов sha256(токен)>`. Без него — 403.
+Заявки из бота уходят в чат `SYNAPS_TELEGRAM_CHAT_ID` (если не задан — в чат того, кто писал).
+Поставить вебхук:
+
+```powershell
+$token = "<токен>"
+$hash = (Get-FileHash -InputStream ([IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($token))) -Algorithm SHA256).Hash.ToLower().Substring(0,16)
+Invoke-RestMethod "https://api.telegram.org/bot$token/setWebhook" -Method Post -Body @{ url = "https://synaps.bond/api/telegram/$hash" }
+```

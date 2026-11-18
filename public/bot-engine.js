@@ -3,11 +3,9 @@
    Без сети, без LLM, без внешних зависимостей. Все факты — только из переданных туров. */
 (function (root, factory) {
   'use strict';
-  if (typeof module === 'object' && module.exports) {
-    module.exports = factory();
-  } else {
-    root.BotEngine = factory();
-  }
+  var api = factory();
+  root.BotEngine = api;
+  if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 

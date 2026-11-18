@@ -496,7 +496,7 @@
     el.tgNote.textContent = 'Заявка у руководителя — на случай, если менеджер направления занят.';
   }
 
-  function reset() {
+  function clearDemo() {
     clearTimeout(escalateTimer);
     el.chat.innerHTML = '';
     el.chips.innerHTML = '';
@@ -517,8 +517,38 @@
     el.error.textContent = '';
     el.input.classList.remove('err');
     updateBack();
+  }
+
+  function reset() {
+    clearDemo();
     start();
   }
+
+  /* Карточки туров в блоке «Что есть в базе»: открывают демо сразу с этим туром. */
+  function openTourInDemo(id) {
+    var tour = findTour(id);
+    var demo = document.getElementById('demo');
+    if (demo) demo.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!tour) return;
+    setTimeout(function () {
+      clearDemo();
+      startLead(tour);
+      focusInput();
+    }, 280);
+  }
+
+  function bindTourCards() {
+    var buttons = document.querySelectorAll('.tour-cta');
+    Array.prototype.forEach.call(buttons, function (btn) {
+      btn.addEventListener('click', function () {
+        openTourInDemo(btn.getAttribute('data-tour'));
+      });
+    });
+  }
+
+  window.SynapsDemo = {
+    openTour: function (id) { openTourInDemo(id); }
+  };
 
   /* ---------------- ввод ---------------- */
 
@@ -602,6 +632,7 @@
   el.tgTake.addEventListener('click', takeDialog);
   el.tgForward.addEventListener('click', forwardToBoss);
   if (el.back) el.back.addEventListener('click', goBack);
+  bindTourCards();
 
   /* ---------------- старт ---------------- */
 

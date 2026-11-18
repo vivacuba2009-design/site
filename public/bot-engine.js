@@ -45,7 +45,10 @@
     'вы ваш ваша ваше вас мне пожалуйста подскажите скажите плиз ' +
     'здравствуйте привет спасибо добрый доброе ' +
     'отличается отличаются отличие отличия разница различия сравни сравните сравнить против ' +
-    'найди найдите поищи ищет ищу информацию инфо подробнее подробно'
+    'найди найдите поищи ищет ищу информацию инфо подробнее подробно ' +
+    'новый новая новое новые нового новому новых год года году годов новогодний новогодние новогодних ' +
+    'праздник праздники праздничные праздничных каникулы рождество рождественские ' +
+    'январ феврал март апрел май июн июл август сентябр октябр ноябр декабр'
   ).split(/\s+/);
 
   var STOP = {};
@@ -175,6 +178,122 @@
   function parseDays(qn) {
     var m = /([0-9]{1,2})\s*(?:дн|день|дней|ноч)/.exec(qn);
     return m ? parseInt(m[1], 10) : null;
+  }
+
+  /* ---------- календарь: праздники, месяцы, конкретные даты ---------- */
+
+  function isoDate(y, m, d) {
+    function two(n) { return (n < 10 ? '0' : '') + n; }
+    return y + '-' + two(m) + '-' + two(d);
+  }
+
+  function addDaysIso(dateIso, n) {
+    var p = String(dateIso).split('-');
+    var dt = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    dt.setDate(dt.getDate() + (Number(n) || 0));
+    return isoDate(dt.getFullYear(), dt.getMonth() + 1, dt.getDate());
+  }
+
+  var MONTH_WORDS = [
+    [/январ/, 1], [/феврал/, 2], [/март/, 3], [/апрел/, 4],
+    [/ма[йяею]/, 5], [/июн/, 6], [/июл/, 7], [/август/, 8],
+    [/сентябр/, 9], [/октябр/, 10], [/ноябр/, 11], [/декабр/, 12]
+  ];
+  var MONTH_IN = ['', 'январе', 'феврале', 'марте', 'апреле', 'мае', 'июне',
+    'июле', 'августе', 'сентябре', 'октябре', 'ноябре', 'декабре'];
+
+  function monthByName(qn) {
+    for (var i = 0; i < MONTH_WORDS.length; i++) {
+      if (MONTH_WORDS[i][0].test(qn)) return MONTH_WORDS[i][1];
+    }
+    return null;
+  }
+
+  function nextYearFor(month, now) {
+    return month < now.getMonth() + 1 ? now.getFullYear() + 1 : now.getFullYear();
+  }
+
+  function rangePhrase(from, to) {
+    return fmtDate(from) + ' – ' + fmtDate(to);
+  }
+
+  /* Окно дат, если в вопросе есть календарь: «новый год», «31.12», «в январе». */
+  function dateWindow(question, now) {
+    now = now || new Date();
+    var raw = String(question || '').toLowerCase().replace(/ё/g, 'е');
+    var qn = normalize(question);
+    var y = now.getFullYear();
+
+    // Явная дата: 31.12 или 31.12.2026
+    var m = /(\d{1,2})[.\/](\d{1,2})(?:[.\/](\d{2,4}))?/.exec(raw);
+    if (m) {
+      var dd = parseInt(m[1], 10);
+      var mm = parseInt(m[2], 10);
+      if (dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12) {
+        var yy = m[3]
+          ? (m[3].length === 2 ? 2000 + parseInt(m[3], 10) : parseInt(m[3], 10))
+          : nextYearFor(mm, now);
+        var center = isoDate(yy, mm, dd);
+        return {
+          from: addDaysIso(center, -4),
+          to: addDaysIso(center, 4),
+          phrase: 'на ' + fmtDate(center) + ' (±4 дня)'
+        };
+      }
+    }
+
+    // Новогодние праздники
+    if (/нов(ый|ого|ому|ым|ые|ых)?\s*(год|года|году)|новогодн|31\s*декабря|праздничн|каникул/.test(qn)) {
+      var sy = now.getMonth() === 11 ? y
+        : (now.getMonth() === 0 && now.getDate() <= 12 ? y - 1 : y);
+      var nf = isoDate(sy, 12, 25);
+      var nt = isoDate(sy + 1, 1, 12);
+      return { from: nf, to: nt, phrase: 'на новогодние даты (' + rangePhrase(nf, nt) + ')' };
+    }
+
+    // Рождество
+    if (/рождеств/.test(qn)) {
+      var ry = now.getMonth() === 11 ? y : (now.getMonth() === 0 ? y - 1 : y);
+      var rf = isoDate(ry, 12, 20);
+      var rt = isoDate(ry + 1, 1, 15);
+      return { from: rf, to: rt, phrase: 'на рождественские даты (' + rangePhrase(rf, rt) + ')' };
+    }
+
+    // Майские
+    if (/майск|1\s*мая|9\s*мая/.test(qn)) {
+      var my = nextYearFor(5, now);
+      var mf = isoDate(my, 4, 28);
+      var mt = isoDate(my, 5, 15);
+      return { from: mf, to: mt, phrase: 'на майские (' + rangePhrase(mf, mt) + ')' };
+    }
+
+    // Месяц словом: «в январе» — выезд должен попадать в этот месяц
+    var mo = monthByName(qn);
+    if (mo) {
+      var my2 = nextYearFor(mo, now);
+      var f2 = isoDate(my2, mo, 1);
+      var t2 = isoDate(my2, mo, new Date(my2, mo, 0).getDate());
+      return {
+        from: f2,
+        to: t2,
+        departOnly: true,
+        phrase: 'в ' + MONTH_IN[mo] + ' ' + my2
+      };
+    }
+
+    return null;
+  }
+
+  function tourInWindow(t, win) {
+    var dates = t.dates || [];
+    for (var i = 0; i < dates.length; i++) {
+      var d = String(dates[i]).slice(0, 10);
+      if (d >= win.from && d <= win.to) return true;
+      if (win.departOnly) continue;
+      var back = addDaysIso(d, Number(t.duration_days) || 0);
+      if (d <= win.to && back >= win.from) return true;
+    }
+    return false;
   }
 
   /* ---------- форматирование ---------- */
@@ -456,6 +575,7 @@
   /* ---------- состояние диалога ---------- */  // Бот помнит последние показанные туры: после «Сколько стоит Абхазия?»
   // вопрос «Что входит в 3-й день?» относится к тому же туру.
   var ctxIds = [];
+  var dateSuffix = '';
 
   function ctxTour(tours) {
     for (var i = 0; i < ctxIds.length; i++) {
@@ -469,6 +589,9 @@
   function finish(kind, text, ids) {
     ids = ids || [];
     if (ids.length) ctxIds = ids.slice(0, 5);
+    if (dateSuffix && /^(search|detail|days|cheapest|priciest|kids|compare|day)$/.test(kind)) {
+      text += '\n' + dateSuffix;
+    }
     return { kind: kind, text: text, tours: ids };
   }
 
@@ -483,17 +606,18 @@
   function greetingText(total) {
     return 'Здравствуйте! Я демо-бот Synaps: ищу по базе из ' + toursLabel(total) +
       ' и отвечаю только тем, что в ней есть.\n' +
-      'Спросите, например: «Сколько стоит Абхазия?», «Что входит в тур в Гагру?», «Есть тур на 6 дней?»';
+      'Спросите, например: «Что есть на Новый год?», «Сколько стоит Дубай?», «Что входит в тур в Египет?», «Есть тур на 6 дней?»';
   }
 
   function helpText(total) {
     return 'Вот что я умею:\n' +
-      '• подобрать по бюджету — «до 800 BYN»\n' +
+      '• подобрать по датам — «на Новый год», «в январе», «31.12»\n' +
+      '• подобрать по бюджету — «до 2500 BYN»\n' +
       '• найти по длительности — «на 6 дней»\n' +
       '• показать самый дешёвый или самый дорогой тур\n' +
       '• рассказать, что входит, какие доплаты и нужна ли виза\n' +
       '• показать программу по дням — «что входит в 3-й день»\n' +
-      '• сравнить два тура — «чем отличается Вена от Будапешта»\n' +
+      '• сравнить два тура — «чем отличается Барселона от Парижа»\n' +
       'В базе ' + toursLabel(total) + ', все вымышленные. Спросите обычными словами.';
   }
 
@@ -533,13 +657,38 @@
       return finish('help', helpText(total), []);
     }
 
+    /* сколько туров в базе */
+    if (/(сколько\s+(всего\s+)?туров|сколько\s+у\s+вас\s+туров|размер\s+базы)/.test(qn)) {
+      return finish('help', 'В демо-базе ' + toursLabel(total) + ', все вымышленные. ' +
+        'Скажите направление, даты или бюджет — покажу подходящие.', []);
+    }
+
+    /* календарь: праздник, месяц или конкретная дата — фильтруем базу по датам */
+    dateSuffix = '';
+    var win = dateWindow(q);
+    if (win) {
+      var scoped = tours.filter(function (t) {
+        return tourInWindow(t, win);
+      });
+      if (!scoped.length) {
+        return finish('notfound',
+          'Туров ' + win.phrase + ' в базе нет — передам менеджеру. ' +
+          'Напишите направление, состав и бюджет — вернусь с вариантами.', []);
+      }
+      tours = scoped;
+      total = tours.length;
+      matched = matchTours(q, tours);
+      dateSuffix = '• Подобрано ' + win.phrase + '.';
+    }
+
     /* самый дешёвый / самый дорогой */
     if (/сам(ый|ая|ое)\s+(деш|недорог)|дешевле всех|минимальн(ая|ый|ое)\s+цена|самый бюджетн/.test(qn)) {
       var cheapScope = directionScope(q, tours);
       var cheapest = cheapScope.slice().sort(function (a, b) {
         return Number(a.price) - Number(b.price);
       })[0];
-      var cheapLabel = cheapScope.length === tours.length ? 'в базе' : 'в направлении';
+      var cheapLabel = win ? 'на эти даты'
+        : (cheapScope.length === tours.length ? 'в базе' : 'в направлении');
       return finish('cheapest', 'Самый дешёвый тур ' + cheapLabel + ':\n' + detail(cheapest), [cheapest.id]);
     }
     if (/сам(ый|ая|ое)\s+дорог|дороже всех|максимальн(ая|ый|ое)\s+цена/.test(qn)) {
@@ -547,7 +696,8 @@
       var priciest = priceScope.slice().sort(function (a, b) {
         return Number(b.price) - Number(a.price);
       })[0];
-      var priceLabel = priceScope.length === tours.length ? 'в базе' : 'в направлении';
+      var priceLabel = win ? 'на эти даты'
+        : (priceScope.length === tours.length ? 'в базе' : 'в направлении');
       return finish('priciest', 'Самый дорогой тур ' + priceLabel + ':\n' + detail(priciest), [priciest.id]);
     }
 
@@ -679,6 +829,28 @@
         return finish('detail',
           'По последнему туру, который мы смотрели:\n' + detail(remembered), [remembered.id]);
       }
+    }
+
+    /* если спросили про даты без уточнений — показываем всё, что подходит по календарю */
+    if (win) {
+      var windowSearch = search(q, tours, 6);
+      var pool = windowSearch.length ? windowSearch : tours.slice().sort(function (a, b) {
+        return String((a.dates || [])[0] || '').localeCompare(String((b.dates || [])[0] || ''));
+      });
+      var shown = pool.slice(0, 6);
+      var head = windowSearch.length
+        ? 'Подходящие туры ' + win.phrase + ':\n'
+        : (pool.length > shown.length
+          ? 'Туры ' + win.phrase + ': всего ' + toursLabel(pool.length) + ', ближайшие:\n'
+          : 'Туры ' + win.phrase + ':\n');
+      var savedSuffix = dateSuffix;
+      dateSuffix = '';
+      var windowAnswer = finish('search',
+        head + shown.map(listLine).join('\n') +
+        '\nУточните тур — покажу программу по дням, доплаты и визу.',
+        idsOf(shown));
+      dateSuffix = savedSuffix;
+      return windowAnswer;
     }
 
     /* поиск по названию, маршруту, странам, тексту программы */

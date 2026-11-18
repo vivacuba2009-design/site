@@ -18,6 +18,8 @@
   };
 
   if (!el.chat) return;
+  el.input.disabled = true;
+  el.input.placeholder = 'Загружаю данные демо…';
 
   var tours = [];
   var state = {
@@ -124,7 +126,7 @@
 
     var found = toursByIds(res.tours);
     if (res.kind === 'notfound') {
-      addSys('В демо база из 12 туров — у бота есть заявка менеджеру на этот случай.');
+      addSys('В демо база из ' + tours.length + ' туров — на такие вопросы есть заявка менеджеру.');
       renderChips([{ label: 'Передать менеджеру', act: 'lead', accent: true }]);
       return;
     }
@@ -140,13 +142,13 @@
   }
 
   var START_CHIPS = [
-    { label: 'Абхазия', act: 'ask', text: 'Абхазия' },
+    { label: 'Что есть на Новый год?', act: 'ask', text: 'Что есть на Новый год?' },
+    { label: 'Авиа', act: 'ask', text: 'Авиа' },
     { label: 'Европа', act: 'ask', text: 'Европа' },
     { label: 'Автобусные', act: 'ask', text: 'Автобусные туры' },
-    { label: 'Что входит в тур?', act: 'ask', text: 'Что входит в тур?' },
-    { label: 'Сколько стоит до 1000 BYN?', act: 'ask', text: 'Сколько стоит тур до 1000 BYN?' },
-    { label: 'Сравнить два тура', act: 'ask', text: 'Чем отличаются туры в Вену и Будапешт?' },
-    { label: 'С ребёнком', act: 'ask', text: 'Что подойдёт с ребёнком?' },
+    { label: 'Сколько стоит Дубай?', act: 'ask', text: 'Сколько стоит Дубай?' },
+    { label: 'Что входит в тур?', act: 'ask', text: 'Что входит в тур в Египет?' },
+    { label: 'Сравнить два тура', act: 'ask', text: 'Чем отличаются туры в Барселону и Париж?' },
     { label: 'Что умеете?', act: 'ask', text: 'Что ты умеешь?' }
   ];
 
@@ -157,7 +159,7 @@
       state.phase = 'chat';
       addMsg('По какому направлению собираем заявку?', 'bot');
       renderChips([
-        { label: 'Абхазия', act: 'ask', text: 'Абхазия' },
+        { label: 'Авиа', act: 'ask', text: 'Авиа' },
         { label: 'Европа', act: 'ask', text: 'Европа' },
         { label: 'Автобусные', act: 'ask', text: 'Автобусные туры' }
       ]);
@@ -390,6 +392,10 @@
     e.preventDefault();
     el.error.textContent = '';
     el.input.classList.remove('err');
+    if (!tours.length) {
+      addSys('Данные демо ещё загружаются — секунду.');
+      return;
+    }
     var text = el.input.value.trim();
     if (!text) return;
 
@@ -461,7 +467,7 @@
   /* ---------------- старт ---------------- */
 
   function start() {
-    addMsg('Здравствуйте! Я турбот Синапс. Спросите про тур — цену, даты, что входит, доплаты, визу — или выберите направление.', 'bot');
+    addMsg('Здравствуйте! Я турбот Синапс. Сезон — новогодние даты. Спросите про тур — цену, даты, что входит, доплаты, визу — или выберите направление.', 'bot');
     addSys('Демо: данные вымышленные, заявки не отправляются, телефон не сохраняется.');
     renderChips(START_CHIPS);
   }
@@ -474,9 +480,13 @@
     .then(function (data) {
       tours = data || [];
       state.taken = false;
+      el.input.disabled = false;
+      el.input.placeholder = 'Спросите про тур: цена, даты, что входит…';
       start();
     })
     .catch(function (err) {
+      el.input.disabled = false;
+      el.input.placeholder = 'Спросите про тур: цена, даты, что входит…';
       addSys('Не удалось загрузить данные демо — обновите страницу.');
       if (window.console) console.error(err);
     });

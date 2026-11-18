@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Турбот для турфирм: демонстрация | Синапс</title>
-<meta name="description" content="Турбот отвечает клиентам круглосуточно: подбирает тур по направлению и дате, собирает заявку с параметрами и передаёт нужному менеджеру. Демонстрация на вымышленных турах.">
-<meta property="og:title" content="Турбот для турфирм: демонстрация | Синапс">
-<meta property="og:description" content="Отвечает, когда менеджер спит. Подбирает тур, собирает заявку, передаёт менеджеру направления.">
+<title>Демо-боты для турфирм и визовых агентств | Синапс</title>
+<meta name="description" content="Два рабочих демо: турбот подбирает туры по дате и бюджету, визбот отвечает по срокам, сборам и документам. Оба собирают заявку с параметрами и передают менеджеру.">
+<meta property="og:title" content="Демо-боты для турфирм и визовых агентств | Синапс">
+<meta property="og:description" content="Турбот и визбот: два демо с заявкой менеджеру. Данные вымышленные или открытые.">
 <meta property="og:type" content="website">
 <link rel="canonical" href="https://synaps.bond/">
 <meta property="og:url" content="https://synaps.bond/">
@@ -25,8 +25,8 @@
 <div class="nav-shell">
   <nav class="nav" aria-label="Основная навигация">
     <span class="brand"><img class="brand-logo" src="logo.svg" alt="" width="26" height="26">Синапс</span>
-    <a class="link" href="#demo">Демо</a>
-    <a class="link" href="visas.html">Визы</a>
+    <a class="link" href="tours.html">Турбот</a>
+    <a class="link" href="visas.html">Визбот</a>
     <a class="link" href="#prices">Цены</a>
     <a class="link" href="#faq">Вопросы</a>
     <a class="cta" href="https://t.me/Bazookie" rel="noopener">Написать в Telegram</a>
@@ -37,132 +37,51 @@
 
   <header class="hero">
     <div class="wrap">
-      <h1>Турбот, который отвечает, когда менеджер спит</h1>
-      <p class="sub">Подбирает тур по направлению и дате, собирает заявку с параметрами и передаёт её менеджеру нужного направления. Работает в Telegram и на сайте из одной базы знаний.</p>
+      <h1>Демо-боты: турбот и визбот</h1>
+      <p class="sub">Турбот подбирает туры по направлению и дате, визбот отвечает по срокам, сборам и документам. Оба собирают заявку с параметрами и передают её менеджеру — в Telegram или на сайте, из одной базы знаний.</p>
       <div class="actions">
-        <a class="btn" href="#demo">Попробовать демо</a>
-        <a class="btn ghost" href="#prices">Сколько стоит</a>
+        <a class="btn" href="tours.html">Демо турбота</a>
+        <a class="btn ghost" href="visas.html">Демо визбота</a>
       </div>
-      <p class="proof">Демонстрация на вымышленных турах. Реальные данные клиента в макете не используются.</p>
+      <p class="proof">Данные в демо вымышленные или открытые. Заявки не отправляются, контакты не сохраняются.</p>
     </div>
   </header>
 
-  <section class="block" id="demo">
+  <section class="block" id="demos">
     <div class="wrap">
-      <h2 class="reveal">Клиент слева, менеджер справа</h2>
-      <p class="lead reveal">Настоящий сценарий, данные вымышленные, сезон — новогодние даты: авиа (ОАЭ, Египет, Азия), Европа и автобусные. Слева клиент спрашивает — справа видно, какую заявку получает менеджер. Демо работает целиком в браузере: ни одна заявка не отправляется, телефон вводится понарошку и никуда не уходит.</p>
+      <h2 class="reveal">Два демо — под два типа клиентов</h2>
+      <p class="lead reveal">Одинаковая логика: бот спрашивает по делу, отвечает только из базы и собирает заявку с параметрами. Отличаются данные и вопросы, которые задаёт клиент.</p>
 
-      <div class="demo-grid">
-        <div class="panel reveal">
-          <div class="panel-head">
-            <div class="dot"><img src="logo.svg" alt="" width="40" height="40"></div>
-            <div class="who">Турбот Синапс<span>демонстрация · ничего не отправляется</span></div>
-          </div>
-
-          <div class="chat" id="chat" aria-live="polite"></div>
-
-          <div class="chips" id="chips"></div>
-
-          <button class="back-link" id="back" type="button" hidden>← Назад</button>
-
-          <form class="composer" id="composer" novalidate>
-            <input id="composer-input" type="text" placeholder="Спросите про тур: цена, даты, что входит…" autocomplete="off" aria-label="Ваш вопрос">
-            <button class="btn" type="submit">Отправить</button>
-          </form>
-          <div class="err-note" id="composer-error" role="status"></div>
-        </div>
-
-        <div class="panel reveal">
-          <div class="panel-head">
-            <div class="dot dot-mock">→</div>
-            <div class="who">Так это видит менеджер<span>макет · Telegram, не подключён</span></div>
-          </div>
-
-          <div class="tg">
-            <div class="tg-head">
-              <div class="tg-name">Заявки · Синапс</div>
-              <div class="tg-status">демонстрационный чат</div>
-            </div>
-            <div class="tg-body" id="tg-body">
-              <div class="tg-empty" id="tg-empty">Пройдите сценарий слева — здесь появится карточка заявки такой, какой её получит менеджер.</div>
-            </div>
-            <div class="tg-actions" id="tg-actions" hidden>
-              <button class="btn" type="button" id="tg-take">Взять диалог</button>
-              <button class="btn ghost" type="button" id="tg-forward">Передать</button>
-            </div>
-            <div class="tg-note" id="tg-note">Макет: кнопки работают только внутри этой страницы. В рабочем боте заявка приходит в Telegram менеджеру.</div>
-          </div>
-        </div>
-      </div>
-
-      <ul class="demo-notes reveal">
-        <li><b>Параметры, а не просто контакт</b><span>Бот спрашивает направление, дату, число человек и отель. Менеджер получает готовую заявку, а не «перезвоните и выясните».</span></li>
-        <li><b>Маршрутизация по направлениям</b><span>Заявка уходит менеджеру своего направления, а не в общий чат, где все читают всё.</span></li>
-        <li><b>Перехват человеком</b><span>Менеджер нажимает «взять диалог» и продолжает сам, бот замолкает. Если ответа нет 15 минут, заявка уходит руководителю.</span></li>
-        <li><b>Цифры только из ваших файлов</b><span>Цены и наличие мест бот берёт из ваших программ и таблиц. Не нашёл, значит честно говорит «уточню у менеджера».</span></li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="block" id="tours">
-    <div class="wrap">
-      <h2 class="reveal">Что есть в базе</h2>
-      <p class="lead reveal">11 вымышленных туров на новогодние даты — три блока: авиа, Европа, автобусные. Ниже три примера. Нажмите «Оставить заявку» — демо выше откроется уже с этим туром.</p>
-
-      <div class="tours-grid">
-        <article class="tour reveal">
-          <div class="tour-plate">
-            <span class="tour-dir">Авиа</span>
-            <span class="tour-dates">выезды 26.12 и 30.12</span>
-          </div>
-          <div class="tour-body">
-            <h3 class="tour-name">Дубай, отель «Марина Скай»</h3>
-            <p class="tour-meta">6 дней · ОАЭ · штамп по прилёту</p>
-            <div class="tour-foot">
-              <span class="tour-price">3 100 <small>BYN</small></span>
-              <button class="btn ghost tour-cta" type="button" data-tour="avia-dubai-marina-sky">Оставить заявку</button>
-            </div>
-          </div>
+      <div class="demo-teasers">
+        <article class="card demo-teaser reveal">
+          <p class="eyebrow">Турбот</p>
+          <h3>Отвечает, когда менеджер спит</h3>
+          <p>Подбирает тур по направлению и дате, разбирает цену, длительность и «что входит», честно говорит «нет» и передаёт заявку менеджеру направления.</p>
+          <ul>
+            <li>11 вымышленных туров на новогодние даты</li>
+            <li>календарь: «на Новый год», «31.12», «в январе»</li>
+            <li>ИИ подключается, когда движок не понял вопрос</li>
+          </ul>
+          <a class="btn" href="tours.html">Открыть демо турбота</a>
         </article>
 
-        <article class="tour reveal">
-          <div class="tour-plate">
-            <span class="tour-dir">Европа</span>
-            <span class="tour-dates">выезды 27.12 и 02.01</span>
-          </div>
-          <div class="tour-body">
-            <h3 class="tour-name">Барселона, отель «Грасия Парк»</h3>
-            <p class="tour-meta">6 дней · Испания · шенгенская виза</p>
-            <div class="tour-foot">
-              <span class="tour-price">2 350 <small>BYN</small></span>
-              <button class="btn ghost tour-cta" type="button" data-tour="europe-barcelona-gracia">Оставить заявку</button>
-            </div>
-          </div>
-        </article>
-
-        <article class="tour reveal">
-          <div class="tour-plate">
-            <span class="tour-dir">Автобусные</span>
-            <span class="tour-dates">выезды 27.12 и 02.01</span>
-          </div>
-          <div class="tour-body">
-            <h3 class="tour-name">Прага, отель «Влтавский мост»</h3>
-            <p class="tour-meta">5 дней · Чехия · шенгенская виза</p>
-            <div class="tour-foot">
-              <span class="tour-price">890 <small>BYN</small></span>
-              <button class="btn ghost tour-cta" type="button" data-tour="bus-prague-vltava-newyear">Оставить заявку</button>
-            </div>
-          </div>
+        <article class="card demo-teaser reveal">
+          <p class="eyebrow">Визбот</p>
+          <h3>Знает сроки, сборы и документы</h3>
+          <p>Отвечает по пяти странам и 21 типу визы: срок рассмотрения, консульский и сервисный сбор, услуги «от», список документов. Цифры — только из базы.</p>
+          <ul>
+            <li>консульский, сервисный сбор и услуги — отдельными строками</li>
+            <li>документы отдельной кнопкой со счётчиком</li>
+            <li>заявка: страна, виза, поездка, контакты</li>
+          </ul>
+          <a class="btn" href="visas.html">Открыть демо визбота</a>
         </article>
       </div>
-
-      <p class="tours-note reveal">Туры вымышленные, цены ориентировочные. В рабочем боте на этом месте ваши программы и ваши цены. Есть второе демо — <a href="visas.html">визовый бот для агентства</a>: 5 стран, 21 тип визы, сборы и документы.</p>
     </div>
   </section>
-
   <section class="tagline">
     <div class="wrap">
-      <p id="tagline" data-text="Один бот. Два входа. Ноль потерянных заявок."></p>
+      <p id="tagline" data-text="Два бота. Два входа. Ноль потерянных заявок."></p>
     </div>
   </section>
 
@@ -282,7 +201,6 @@
   </div>
 </footer>
 
-<script src="bot-engine.js"></script>
-<script src="app.js"></script>
+<script src="anim.js"></script>
 </body>
 </html>

@@ -1,0 +1,5 @@
+﻿# превью и системные файлы не в репозиторий
+_preview*.png
+preview/
+.DS_Store
+Thumbs.db

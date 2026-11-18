@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Турбот для турфирм: демонстрация | Синапс</title>
+<meta name="description" content="Турбот отвечает клиентам круглосуточно: подбирает тур по направлению и дате, собирает заявку с параметрами и передаёт нужному менеджеру. Демонстрация на вымышленных турах.">
+<meta property="og:title" content="Турбот для турфирм: демонстрация | Синапс">
+<meta property="og:description" content="Отвечает, когда менеджер спит. Подбирает тур, собирает заявку, передаёт менеджеру направления.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://synaps.bond/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23181818'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23f97316'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Перейти к содержанию</a>
+
+<div class="nav-shell">
+  <nav class="nav" aria-label="Основная навигация">
+    <span class="brand">Синапс</span>
+    <a class="link" href="#demo">Демо</a>
+    <a class="link" href="#prices">Цены</a>
+    <a class="link" href="#faq">Вопросы</a>
+    <a class="cta" href="https://t.me/Bazookie" rel="noopener">Написать в Telegram</a>
+  </nav>
+</div>
+
+<main id="main">
+
+  <header class="hero">
+    <div class="wrap">
+      <h1>Турбот, который отвечает, когда менеджер спит</h1>
+      <p class="sub">Подбирает тур по направлению и дате, собирает заявку с параметрами и передаёт её менеджеру нужного направления. Работает в Telegram и на сайте из одной базы знаний.</p>
+      <div class="actions">
+        <a class="btn" href="#demo">Попробовать демо</a>
+        <a class="btn ghost" href="#prices">Сколько стоит</a>
+      </div>
+      <p class="proof">Демонстрация на вымышленных турах. Реальные данные клиента в макете не используются.</p>
+    </div>
+  </header>
+
+  <section class="block" id="demo">
+    <div class="wrap">
+      <h2 class="reveal">Как это выглядит для клиента</h2>
+      <p class="lead reveal">Ниже настоящий сценарий, только данные вымышленные. Нажмите направление в карточке: бот покажет туры, попросит имя и телефон и покажет, кому уйдёт заявка.</p>
+
+      <div class="demo-grid">
+        <div class="phone reveal">
+          <div class="head">
+            <div class="dot">С</div>
+            <div class="who">Турбот Синапс<span>демонстрация</span></div>
+          </div>
+
+          <div class="chat" id="chat" aria-live="polite">
+            <div class="msg bot">Здравствуйте! Куда хотите поехать в этом сезоне?</div>
+            <div class="msg sys">Выберите направление ниже</div>
+          </div>
+
+          <div class="chips" id="chips">
+            <button class="chip" type="button" data-key="abkhazia">Абхазия</button>
+            <button class="chip" type="button" data-key="europe">Европа</button>
+            <button class="chip" type="button" data-key="bus">Автобусные туры</button>
+          </div>
+
+          <form id="lead-form" hidden novalidate>
+            <div class="form-row">
+              <input id="lead-name" name="name" type="text" placeholder="Имя" autocomplete="name" aria-label="Имя">
+              <input id="lead-phone" name="phone" type="tel" placeholder="Телефон" autocomplete="tel" aria-label="Телефон">
+              <button class="btn" type="submit">Оставить заявку</button>
+            </div>
+            <div class="err-note" id="lead-error" role="status"></div>
+          </form>
+        </div>
+
+        <ul class="demo-notes reveal">
+          <li><b>Параметры, а не просто контакт</b><span>Бот спрашивает направление, дату, число человек и отель. Менеджер получает готовую заявку, а не «перезвоните и выясните».</span></li>
+          <li><b>Маршрутизация по направлениям</b><span>Заявка уходит менеджеру своего направления, а не в общий чат, где все читают всё.</span></li>
+          <li><b>Перехват человеком</b><span>Менеджер нажимает «взять диалог» и продолжает сам, бот замолкает. Если ответа нет 15 минут, заявка уходит руководителю.</span></li>
+          <li><b>Цифры только из ваших файлов</b><span>Цены и наличие мест бот берёт из ваших программ и таблиц. Не нашёл, значит честно говорит «уточню у менеджера».</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="tagline">
+    <div class="wrap">
+      <p id="tagline" data-text="Один бот. Два входа. Ноль потерянных заявок."></p>
+    </div>
+  </section>
+
+  <section class="block" id="why">
+    <div class="wrap">
+      <h2 class="reveal">Что это даёт турфирме</h2>
+      <div class="grid-3">
+        <div class="card reveal">
+          <h3>Не теряет ночные заявки</h3>
+          <p>Чат и телефон работают, пока оператор на месте. Бот принимает запрос в любое время и доводит до заявки.</p>
+        </div>
+        <div class="card reveal">
+          <h3>Снимает типовые вопросы</h3>
+          <p>Даты выездов, что входит в тур, условия оплаты, визы. Менеджер занимается продажей, а не справкой.</p>
+        </div>
+        <div class="card reveal">
+          <h3>Не даёт выдумать цену</h3>
+          <p>Бот отвечает только по вашим программам и таблице наличия мест. На незнакомый вопрос говорит «уточню у менеджера».</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="how">
+    <div class="wrap">
+      <h2 class="reveal">Как проходит работа</h2>
+      <div class="steps">
+        <div class="step reveal"><div class="n">1</div><div><h3>Собираем ваши материалы</h3><p>Программы туров, даты, цены, таблица наличия мест, список менеджеров и направлений. Ничего придумывать не нужно: бот наполняется из того, что у вас уже есть.</p></div></div>
+        <div class="step reveal"><div class="n">2</div><div><h3>Собираем бота и проверяем на ваших вопросах</h3><p>Сценарий заявки, ответы по программам, маршрутизация и перехват. Проверяем на реальных вопросах клиентов и правим формулировки.</p></div></div>
+        <div class="step reveal"><div class="n">3</div><div><h3>Подключаем и передаём</h3><p>Бот в Telegram, по желанию виджет на сайте. Показываем, как обновлять программы и наличие мест, и что делать, когда меняются цены.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="prices">
+    <div class="wrap">
+      <h2 class="reveal">Три варианта</h2>
+      <p class="lead reveal">Цены за работу, оплата поэтапно. Поддержка не обязательна, но без обновления данных бот начнёт отвечать устаревшими ценами.</p>
+      <div class="prices">
+        <div class="card price reveal">
+          <div class="tag">Базовый</div>
+          <div class="sum">300 BYN</div>
+          <ul>
+            <li>бот в Telegram</li>
+            <li>1–2 направления</li>
+            <li>заявка уходит в один чат</li>
+            <li>ответы по сценарию</li>
+          </ul>
+          <a class="btn ghost" href="#final">Обсудить</a>
+        </div>
+        <div class="card price hot reveal">
+          <div class="tag">С менеджерами</div>
+          <div class="sum">600 BYN</div>
+          <ul>
+            <li>все направления из программ</li>
+            <li>заявка конкретному менеджеру</li>
+            <li>перехват диалога кнопкой</li>
+            <li>нет ответа 15 минут, уходит руководителю</li>
+          </ul>
+          <a class="btn" href="#final">Обсудить</a>
+        </div>
+        <div class="card price reveal">
+          <div class="tag">Максимальный</div>
+          <div class="sum">900 BYN</div>
+          <ul>
+            <li>всё из второго варианта</li>
+            <li>виджет на сайте</li>
+            <li>ИИ отвечает по программам</li>
+            <li>наличие мест и журнал заявок</li>
+          </ul>
+          <a class="btn ghost" href="#final">Обсудить</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="faq">
+    <div class="wrap">
+      <h2 class="reveal">Частые вопросы</h2>
+      <div class="faq">
+        <details class="reveal"><summary>Бот будет выдумывать цены?</summary><p>Нет. Цены и наличие мест берутся только из ваших файлов. Если данных нет, бот говорит «уточню у менеджера» и передаёт диалог человеку.</p></details>
+        <details class="reveal"><summary>Нужно ли отказываться от текущего чата на сайте?</summary><p>Нет. Текущий чат остаётся для живого общения в рабочие часы. Бот закрывает нерабочее время и типовые вопросы.</p></details>
+        <details class="reveal"><summary>Что если менеджер не ответил?</summary><p>Через 15 минут заявка уходит руководителю или в группу «разобрать». Клиент не остаётся без ответа.</p></details>
+        <details class="reveal"><summary>Можно ли бронировать прямо в боте?</summary><p>В этом предложении бот собирает заявку и передаёт менеджеру, а подтверждает человек. Автоматическая бронь с фиксацией места требует синхронизации с вашим учётом, это отдельная работа.</p></details>
+        <details class="reveal"><summary>Кто обновляет программы и наличие мест?</summary><p>Вы: это ваши данные. Мы показываем, как это делать, и можем взять обновление на себя за отдельную плату.</p></details>
+        <details class="reveal"><summary>Что будет, если цены изменятся после запуска?</summary><p>Бот будет отвечать старыми, пока файл не обновят. Поэтому обновление данных важнее, чем кажется: это главный источник ошибок.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="final" id="final">
+    <div class="wrap">
+      <div class="box reveal">
+        <h2>Попробуйте на своих вопросах</h2>
+        <p>Пришлите программы туров и список менеджеров с направлениями. Соберём демонстрацию на ваших данных, чтобы вы увидели работу до оплаты.</p>
+        <a class="btn" href="https://t.me/Bazookie" rel="noopener">Написать в Telegram</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap row">
+    <div>
+      <div>Андрей Захватошин · Синапс</div>
+      <div>+375 29 117-89-10 · azbookie@yandex.ru</div>
+    </div>
+    <div>
+      <a href="privacy.html">Политика конфиденциальности</a>
+      <a href="https://t.me/Bazookie" rel="noopener">Telegram</a>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

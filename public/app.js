@@ -93,6 +93,7 @@
     else if (it.act === 'people') { setPeople(it.value); }
     else if (it.act === 'date') { setDate(it.value); }
     else if (it.act === 'take') { takeDialog(); }
+    else if (it.act === 'examples') { showExamples(); }
     else if (it.act === 'reset') { reset(); }
   }
 
@@ -133,7 +134,8 @@
 
     var found = toursByIds(res.tours);
     if (res.kind === 'notfound') {
-      showNotFound();
+      addMsg('Передать менеджеру?', 'bot');
+      offerManager();
       return;
     }
     if (found.length) {
@@ -156,9 +158,23 @@
     return typeof fetch === 'function' && /^https?:$/.test(location.protocol);
   }
 
+  function offerManager() {
+    renderChips([
+      { label: 'Да, передать менеджеру', act: 'lead', accent: true },
+      { label: 'Спросить по-другому', act: 'examples' }
+    ]);
+  }
+
   function showNotFound() {
-    addSys('В демо база из ' + tours.length + ' туров — на такие вопросы есть заявка менеджеру.');
-    renderChips([{ label: 'Передать менеджеру', act: 'lead', accent: true }]);
+    addMsg('К сожалению, не смог корректно обработать запрос — в демо-базе ' + tours.length +
+      ' туров, и по этому запросу ничего не подошло.', 'bot');
+    addMsg('Передать менеджеру?', 'bot');
+    offerManager();
+  }
+
+  function showExamples() {
+    addMsg('Вот что я понимаю точно — можно нажать или написать своё:', 'bot');
+    renderChips(START_CHIPS);
   }
 
   /* Свободный вопрос, который движок не разобрал, — отдаём ИИ.

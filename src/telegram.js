@@ -66,8 +66,19 @@ async function onMessage(msg, env, url) {
       return;
     }
   }
-  const keyboard = ids.length ? tourKeyboard(ids, tours) : mainKeyboard();
+  const keyboard = answer.kind === 'notfound'
+    ? managerKeyboard()
+    : (ids.length ? tourKeyboard(ids, tours) : mainKeyboard());
   await send(env, chatId, trim(answer.text), keyboard);
+}
+
+function managerKeyboard() {
+  return {
+    inline_keyboard: [
+      [{ text: 'Написать менеджеру', url: 'https://t.me/Bazookie' }],
+      [{ text: 'Сначала меню', callback_data: 'start' }]
+    ]
+  };
 }
 
 async function onCallback(cb, env, url) {

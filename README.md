@@ -1,4 +1,4 @@
-﻿# Синапс — песочница synaps.bond
+# Синапс — песочница synaps.bond
 
 Демонстрационная страница турбота для турфирм.
 
@@ -8,12 +8,25 @@
 |---|---|
 | `public/index.html` | главная: hero, демо чата, выгоды, процесс, цены, вопросы |
 | `public/style.css` | оформление, тёмная тема, адаптив |
-| `public/app.js` | демо турбота (симуляция) и анимации |
+| `public/app.js` | диалог демо: сценарий заявки, маска телефона, карточка, мок менеджера |
+| `public/bot-engine.js` | движок: интенты + календарь («новый год», «31.12», «в январе») |
+| `public/tours.json` | база демо: 11 вымышленных туров, новогодние даты |
 | `public/privacy.html` | политика конфиденциальности |
 | `public/404.html` | страница ошибки |
-| `wrangler.jsonc` | Cloudflare Workers: отдаёт статику из `public` |
+| `src/index.js` | воркер: статика + `POST /api/chat` (ИИ только переформулирует, цифры из `tours.json`) |
+| `wrangler.jsonc` | Cloudflare Workers: `main` + статика из `public` через ASSETS |
 
 ## Правки
 
-Туры для демо лежат в `public/app.js` (объект `TOURS`), тексты в `public/index.html`.
+Туры — в `public/tours.json`, тексты — в `public/index.html`, интенты — в `public/bot-engine.js`.
 После правки: коммит и push, Cloudflare пересоберёт сам.
+
+## ИИ-ответы (`/api/chat`)
+
+Включаются, только когда движок не разобрал вопрос. Ключ живёт в секрете воркера:
+
+- **на проде**: Cloudflare → Workers & Pages → `site` → Settings → Variables and Secrets → Add → Type **Secret**, Name `SYNAPS_DEEPSEEK_KEY`;
+- **локально**: строка `SYNAPS_DEEPSEEK_KEY:` в `~/.dsh/.credentials.yaml` (файл вне репозитория);
+- в код, `wrangler.jsonc` и `tours.json` ключ не кладём никогда.
+
+Правила ответа: ИИ берёт факты только из `tours.json`; числа в ответе проверяются (цена/даты/длительность должны быть в базе), иначе ответ отбрасывается. При недоступном API демо отвечает обычным движком.

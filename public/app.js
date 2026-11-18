@@ -122,12 +122,16 @@
       addSys('Не смог разобрать вопрос. Попробуйте иначе.');
       return;
     }
+
+    if (res.kind === 'notfound' && aiAvailable()) {
+      askAi(question);
+      return;
+    }
     addMsg(res.text, 'bot');
 
     var found = toursByIds(res.tours);
     if (res.kind === 'notfound') {
-      addSys('В демо база из ' + tours.length + ' туров — на такие вопросы есть заявка менеджеру.');
-      renderChips([{ label: 'Передать менеджеру', act: 'lead', accent: true }]);
+      showNotFound();
       return;
     }
     if (found.length) {
@@ -139,6 +143,49 @@
       return;
     }
     renderChips(START_CHIPS);
+  }
+
+  function aiAvailable() {
+    return typeof fetch === 'function' && /^https?:$/.test(location.protocol);
+  }
+
+  function showNotFound() {
+    addSys('В демо база из ' + tours.length + ' туров — на такие вопросы есть заявка менеджеру.');
+    renderChips([{ label: 'Передать менеджеру', act: 'lead', accent: true }]);
+  }
+
+  /* Свободный вопрос, который движок не разобрал, — отдаём ИИ.
+     ИИ только формулирует; цифры берёт из той же базы, что и движок. */
+  function askAi(question) {
+    renderChips([]);
+    var typing = addMsg('Смотрю базу…', 'bot typing');
+
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ q: question })
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        if (typing && typing.parentNode) typing.parentNode.removeChild(typing);
+        if (data && data.ok && data.found && data.reply) {
+          addMsg(data.reply, 'bot');
+          addSys('Ответ собран ИИ по базе демо — цифры из tours.json.');
+          renderChips([
+            { label: 'Оставить заявку', act: 'lead', accent: true },
+            { label: 'Пройти ещё раз', act: 'reset' }
+          ]);
+          return;
+        }
+        showNotFound();
+      })
+      .catch(function () {
+        if (typing && typing.parentNode) typing.parentNode.removeChild(typing);
+        showNotFound();
+      });
   }
 
   var START_CHIPS = [

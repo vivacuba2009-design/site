@@ -115,7 +115,7 @@ section.block { padding: 84px 0; }
 section.block#demo { padding-top: 56px; }
 section.block > .wrap > h2 {
   font-family: var(--display);
-  font-size: clamp(28px, 3.4vw, 40px);
+  font-size: clamp(26px, 3vw, 32px);
   line-height: 1.14;
   letter-spacing: -0.015em;
   font-weight: 400;
@@ -270,12 +270,12 @@ section[id] { scroll-margin-top: 84px; }
 .price { display: flex; flex-direction: column; gap: 16px; }
 .price.hot { border-color: var(--accent); }
 .price .tag { font-size: 11px; line-height: 1.3; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; }
-.price .sum { font-family: var(--display); font-size: 38px; line-height: 1.05; font-weight: 400; letter-spacing: -0.02em; }
+.price .sum { font-family: var(--display); font-size: 34px; line-height: 1.05; font-weight: 400; letter-spacing: -0.02em; }
 .price .sum small { font-family: var(--body); font-size: 14px; font-weight: 350; color: var(--muted); }
 .price ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .price li { font-size: 14px; line-height: 1.5; color: var(--ink-2); padding-left: 16px; position: relative; }
 .price li::before { content: ""; position: absolute; left: 0; top: 8px; width: 5px; height: 5px; border-radius: 999px; background: var(--accent); }
-.price .btn { margin-top: auto; align-self: flex-start; }
+.price .btn { margin-top: auto; width: 100%; justify-content: center; }
 
 /* ---------- faq ---------- */
 .faq { display: grid; gap: 0; margin-top: 40px; max-width: 860px; }
@@ -290,7 +290,7 @@ details p { color: var(--ink-2); margin: 12px 0 0; font-size: 15px; line-height:
 /* ---------- final ---------- */
 .final { padding: 88px 0; }
 .final .box { background: var(--surface); border: 1px solid var(--hair); border-radius: var(--radius); padding: 48px; }
-.final h2 { font-family: var(--display); font-size: clamp(28px, 3.2vw, 38px); line-height: 1.15; font-weight: 400; letter-spacing: -0.015em; }
+.final h2 { font-family: var(--display); font-size: clamp(26px, 3vw, 32px); line-height: 1.2; font-weight: 400; letter-spacing: -0.015em; }
 .final p { color: var(--ink-2); margin: 16px 0 24px; max-width: 620px; }
 @media (max-width: 760px) { .final .box { padding: 28px; } }
 
@@ -313,4 +313,12 @@ footer .contacts a[href^="tel:"] { white-space: nowrap; }
   .tagline .w { color: var(--ink); transition: none; }
   html { scroll-behavior: auto; }
   .msg.typing { animation: none; }
+}
+
+/* ---------- прайс: иерархия (P1.2) ---------- */
+.price-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.price-badge {
+  font-size: 10px; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--accent); background: var(--accent-soft); border-radius: var(--radius);
+  padding: 4px 8px; white-space: nowrap;
 }

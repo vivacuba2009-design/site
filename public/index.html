@@ -45,44 +45,56 @@
 
   <section class="block" id="demo">
     <div class="wrap">
-      <h2 class="reveal">Как это выглядит для клиента</h2>
-      <p class="lead reveal">Ниже настоящий сценарий, только данные вымышленные. Нажмите направление в карточке: бот покажет туры, попросит имя и телефон и покажет, кому уйдёт заявка.</p>
+      <h2 class="reveal">Клиент слева, менеджер справа</h2>
+      <p class="lead reveal">Настоящий сценарий, данные вымышленные. Слева клиент спрашивает — справа видно, какую заявку получает менеджер. Демо работает целиком в браузере: ни одна заявка не отправляется, телефон вводится понарошку и никуда не уходит.</p>
 
       <div class="demo-grid">
-        <div class="phone reveal">
-          <div class="head">
+        <div class="panel reveal">
+          <div class="panel-head">
             <div class="dot">С</div>
-            <div class="who">Турбот Синапс<span>демонстрация</span></div>
+            <div class="who">Турбот Синапс<span>демонстрация · ничего не отправляется</span></div>
           </div>
 
-          <div class="chat" id="chat" aria-live="polite">
-            <div class="msg bot">Здравствуйте! Куда хотите поехать в этом сезоне?</div>
-            <div class="msg sys">Выберите направление ниже</div>
-          </div>
+          <div class="chat" id="chat" aria-live="polite"></div>
 
-          <div class="chips" id="chips">
-            <button class="chip" type="button" data-key="abkhazia">Абхазия</button>
-            <button class="chip" type="button" data-key="europe">Европа</button>
-            <button class="chip" type="button" data-key="bus">Автобусные туры</button>
-          </div>
+          <div class="chips" id="chips"></div>
 
-          <form id="lead-form" hidden novalidate>
-            <div class="form-row">
-              <input id="lead-name" name="name" type="text" placeholder="Имя" autocomplete="name" aria-label="Имя">
-              <input id="lead-phone" name="phone" type="tel" placeholder="Телефон" autocomplete="tel" aria-label="Телефон">
-              <button class="btn" type="submit">Оставить заявку</button>
-            </div>
-            <div class="err-note" id="lead-error" role="status"></div>
+          <form class="composer" id="composer" novalidate>
+            <input id="composer-input" type="text" placeholder="Спросите про тур: цена, даты, что входит…" autocomplete="off" aria-label="Ваш вопрос">
+            <button class="btn" type="submit">Отправить</button>
           </form>
+          <div class="err-note" id="composer-error" role="status"></div>
         </div>
 
-        <ul class="demo-notes reveal">
-          <li><b>Параметры, а не просто контакт</b><span>Бот спрашивает направление, дату, число человек и отель. Менеджер получает готовую заявку, а не «перезвоните и выясните».</span></li>
-          <li><b>Маршрутизация по направлениям</b><span>Заявка уходит менеджеру своего направления, а не в общий чат, где все читают всё.</span></li>
-          <li><b>Перехват человеком</b><span>Менеджер нажимает «взять диалог» и продолжает сам, бот замолкает. Если ответа нет 15 минут, заявка уходит руководителю.</span></li>
-          <li><b>Цифры только из ваших файлов</b><span>Цены и наличие мест бот берёт из ваших программ и таблиц. Не нашёл, значит честно говорит «уточню у менеджера».</span></li>
-        </ul>
+        <div class="panel reveal">
+          <div class="panel-head">
+            <div class="dot dot-mock">→</div>
+            <div class="who">Так это видит менеджер<span>макет · Telegram, не подключён</span></div>
+          </div>
+
+          <div class="tg">
+            <div class="tg-head">
+              <div class="tg-name">Заявки · Синапс</div>
+              <div class="tg-status">демонстрационный чат</div>
+            </div>
+            <div class="tg-body" id="tg-body">
+              <div class="tg-empty" id="tg-empty">Пройдите сценарий слева — здесь появится карточка заявки такой, какой её получит менеджер.</div>
+            </div>
+            <div class="tg-actions" id="tg-actions" hidden>
+              <button class="btn" type="button" id="tg-take">Взять диалог</button>
+              <button class="btn ghost" type="button" id="tg-forward">Передать</button>
+            </div>
+            <div class="tg-note" id="tg-note">Макет: кнопки работают только внутри этой страницы. В рабочем боте заявка приходит в Telegram менеджеру.</div>
+          </div>
+        </div>
       </div>
+
+      <ul class="demo-notes reveal">
+        <li><b>Параметры, а не просто контакт</b><span>Бот спрашивает направление, дату, число человек и отель. Менеджер получает готовую заявку, а не «перезвоните и выясните».</span></li>
+        <li><b>Маршрутизация по направлениям</b><span>Заявка уходит менеджеру своего направления, а не в общий чат, где все читают всё.</span></li>
+        <li><b>Перехват человеком</b><span>Менеджер нажимает «взять диалог» и продолжает сам, бот замолкает. Если ответа нет 15 минут, заявка уходит руководителю.</span></li>
+        <li><b>Цифры только из ваших файлов</b><span>Цены и наличие мест бот берёт из ваших программ и таблиц. Не нашёл, значит честно говорит «уточню у менеджера».</span></li>
+      </ul>
     </div>
   </section>
 
@@ -169,6 +181,7 @@
     <div class="wrap">
       <h2 class="reveal">Частые вопросы</h2>
       <div class="faq">
+        <details class="reveal"><summary>Демо на сайте что-то отправляет?</summary><p>Нет. Демо работает целиком в браузере: ни заявки, ни телефон никуда не уходят и не сохраняются. Поэтому в нём можно спокойно смотреть сценарий. Боевого бота показываем отдельно — на ваших турах и с заявками в вашу Telegram-группу.</p></details>
         <details class="reveal"><summary>Бот будет выдумывать цены?</summary><p>Нет. Цены и наличие мест берутся только из ваших файлов. Если данных нет, бот говорит «уточню у менеджера» и передаёт диалог человеку.</p></details>
         <details class="reveal"><summary>Нужно ли отказываться от текущего чата на сайте?</summary><p>Нет. Текущий чат остаётся для живого общения в рабочие часы. Бот закрывает нерабочее время и типовые вопросы.</p></details>
         <details class="reveal"><summary>Что если менеджер не ответил?</summary><p>Через 15 минут заявка уходит руководителю или в группу «разобрать». Клиент не остаётся без ответа.</p></details>
@@ -204,6 +217,7 @@
   </div>
 </footer>
 
+<script src="bot-engine.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

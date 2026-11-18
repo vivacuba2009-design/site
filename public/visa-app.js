@@ -10,12 +10,13 @@
     error: document.getElementById('composer-error'),
     tgBody: document.getElementById('tg-body'),
     tgEmpty: document.getElementById('tg-empty'),
-    tgNote: document.getElementById('tg-note')
+    tgNote: document.getElementById('tg-note'),
+    back: document.getElementById('back')
   };
   if (!el.chat) return;
 
   var data = null;
-  var state = { country: null, visa: null, trip: '', name: '', phoneDigits: '', phase: 'chat', offerTypes: [] };
+  var state = { country: null, visa: null, trip: '', name: '', phoneDigits: '', phase: 'chat', offerTypes: [], history: [] };
 
   el.input.disabled = true;
   el.input.placeholder = 'Загружаю данные демо…';
@@ -60,6 +61,110 @@
 
   /* ---------------- чипсы и сценарий ---------------- */
 
+  /* ---------------- навигация: виды и шаг назад ---------------- */
+
+  function pushView(view) {
+    var last = state.history[state.history.length - 1];
+    if (last && last.type === view.type &&
+        last.country === view.country && last.visa === view.visa) return;
+    state.history.push(view);
+    if (state.history.length > 12) state.history.shift();
+    updateBack();
+  }
+
+  function renderCountriesView() {
+    state.country = null;
+    state.visa = null;
+    renderChips(countriesChips());
+    updateBack();
+  }
+
+  function renderTypesView(country) {
+    state.country = country;
+    state.visa = null;
+    renderChips(typesChipsFor(country));
+    updateBack();
+  }
+
+  function renderVisaView() {
+    renderChips(visaActionChips());
+    updateBack();
+  }
+
+  function updateBack() {
+    if (!el.back) return;
+    var inLead = state.phase === 'trip' || state.phase === 'name' || state.phase === 'phone';
+    el.back.hidden = !(inLead || state.history.length > 1);
+  }
+
+  function goBack() {
+    el.input.value = '';
+    el.error.textContent = '';
+    el.input.classList.remove('err');
+
+    if (state.phase === 'phone') {
+      state.phase = 'name';
+      state.phoneDigits = '';
+      el.input.inputMode = 'text';
+      el.input.placeholder = 'Например: рабочая виза в Польшу…';
+      addMsg('Шаг назад — имя. Как вас зовут?', 'bot');
+      renderChips([]);
+      updateBack();
+      focusInput();
+      return;
+    }
+    if (state.phase === 'name') {
+      state.phase = 'trip';
+      addMsg('Шаг назад — когда планируете поездку?', 'bot');
+      renderChips([
+        { label: 'В ближайший месяц', act: 'trip', value: 'в ближайший месяц' },
+        { label: 'Через 2–3 месяца', act: 'trip', value: 'через 2–3 месяца' },
+        { label: 'Пока не знаю', act: 'trip', value: 'пока не знаю' }
+      ]);
+      updateBack();
+      focusInput();
+      return;
+    }
+    if (state.phase === 'trip') {
+      state.phase = 'chat';
+      addMsg('Шаг назад — к визе. Заявку не отправлял.', 'bot');
+      if (state.country && state.visa) renderVisaView();
+      else renderCountriesView();
+      unlockView();
+      return;
+    }
+
+    // обычный чат: возвращаемся на предыдущий вид
+    if (state.history.length < 2) return;
+    state.history.pop();
+    var prev = state.history[state.history.length - 1];
+
+    if (prev.type === 'countries') {
+      addMsg('Вернулись к выбору страны.', 'bot');
+      renderCountriesView();
+      return;
+    }
+    if (prev.type === 'types') {
+      var c = findCountry(prev.country);
+      if (!c) { renderCountriesView(); return; }
+      addMsg('Вернулись к типам виз: ' + c.name + '.', 'bot');
+      renderTypesView(c);
+      return;
+    }
+    if (prev.type === 'visa') {
+      var cc = findCountry(prev.country);
+      var vv = cc && (cc.visas || []).filter(function (x) { return x.name === prev.visa; })[0];
+      if (!cc || !vv) { renderCountriesView(); return; }
+      state.country = cc;
+      state.visa = vv;
+      addMsg('Вернулись к визе: ' + cc.name + ' · ' + vv.name + '.', 'bot');
+      renderVisaView();
+    }
+  }
+
+  function unlockView() {
+    updateBack();
+  }
   function onChip(it) {
     if (it.act === 'country') chooseCountry(it.value);
     else if (it.act === 'visa') chooseVisa(it.value);
@@ -113,7 +218,8 @@
     userSays(name);
     var res = window.VisaEngine.answer('какие визы в ' + name, data);
     addMsg(res.text, 'bot');
-    renderChips(typesChipsFor(country));
+    renderTypesView(country);
+    pushView({ type: 'types', country: country.name });
   }
 
   function chooseVisa(name) {
@@ -125,7 +231,8 @@
     userSays(name);
     var res = window.VisaEngine.answer(name + ' в ' + country.name, data);
     addMsg(res.text, 'bot');
-    renderChips(visaActionChips());
+    renderVisaView();
+    pushView({ type: 'visa', country: country.name, visa: visa.name });
   }
 
   function findCountry(name) {
@@ -196,6 +303,7 @@
       { label: 'Через 2–3 месяца', act: 'trip', value: 'через 2–3 месяца' },
       { label: 'Пока не знаю', act: 'trip', value: 'пока не знаю' }
     ]);
+    updateBack();
     focusInput();
   }
 
@@ -205,6 +313,7 @@
     userSays(value);
     addMsg('Как вас зовут?', 'bot');
     renderChips([]);
+    updateBack();
     focusInput();
   }
 
@@ -216,6 +325,7 @@
     el.input.value = '';
     el.input.placeholder = '+375 (29) 123-45-67';
     el.input.inputMode = 'tel';
+    updateBack();
     focusInput();
   }
 
@@ -237,6 +347,7 @@
     addSys('Заявка сформирована. Демо: никуда не отправлена, телефон не сохранялся.');
     addMsg('Готово, ' + state.name + '. Справа — карточка, которую получит менеджер. В рабочем боте она придёт в Telegram или CRM визового отдела.', 'bot');
     renderChips([{ label: 'Пройти ещё раз', act: 'restart' }]);
+    updateBack();
     showCard();
   }
 
@@ -310,7 +421,7 @@
     el.tgEmpty = empty;
     el.tgNote.className = 'tg-note';
     el.tgNote.textContent = 'Макет: кнопки работают только внутри страницы. В рабочем боте заявка приходит менеджеру в Telegram или CRM.';
-    state = { country: null, visa: null, trip: '', name: '', phoneDigits: '', phase: 'chat', offerTypes: [] };
+    state = { country: null, visa: null, trip: '', name: '', phoneDigits: '', phase: 'chat', offerTypes: [], history: [] };
     el.input.value = '';
     el.input.placeholder = 'Например: рабочая виза в Польшу…';
     el.input.inputMode = 'text';
@@ -366,6 +477,8 @@
     ask(text);
   });
 
+  if (el.back) el.back.addEventListener('click', goBack);
+
   el.input.addEventListener('input', function () {
     if (state.phase !== 'phone') return;
     el.input.value = formatPhone(el.input.value);
@@ -376,7 +489,8 @@
   function start() {
     addMsg('Здравствуйте! Я визовый бот. Помогу со сроками, сборами и документами. Выберите страну — или спросите словами, например «рабочая виза в Польшу».', 'bot');
     addSys('Демо: данные по открытым страницам на 18.11.2026, заявки не отправляются, телефон не сохраняется.');
-    renderChips(countriesChips());
+    renderCountriesView();
+    pushView({ type: 'countries' });
   }
 
   fetch('visa-data.json', { cache: 'no-cache' })

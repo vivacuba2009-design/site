@@ -14,7 +14,8 @@
     tgActions: document.getElementById('tg-actions'),
     tgTake: document.getElementById('tg-take'),
     tgForward: document.getElementById('tg-forward'),
-    tgNote: document.getElementById('tg-note')
+    tgNote: document.getElementById('tg-note'),
+    back: document.getElementById('back')
   };
 
   if (!el.chat) return;
@@ -29,7 +30,8 @@
     date: null,
     name: '',
     phoneDigits: '',
-    done: false
+    done: false,
+    offer: []           // последние найденные туры — чтобы вернуться «Назад»
   };
   var escalateTimer = null;
 
@@ -135,14 +137,19 @@
       return;
     }
     if (found.length) {
-      var items = found.slice(0, 3).map(function (t) {
-        return { label: truncate(t.name, 32), act: 'tour', value: t.id };
-      });
-      items.push({ label: 'Оставить заявку', act: 'lead', accent: true });
-      renderChips(items);
+      state.offer = found.map(function (t) { return t.id; });
+      renderTourChips(found);
       return;
     }
     renderChips(START_CHIPS);
+  }
+
+  function renderTourChips(found) {
+    var items = found.slice(0, 3).map(function (t) {
+      return { label: truncate(t.name, 32), act: 'tour', value: t.id };
+    });
+    items.push({ label: 'Оставить заявку', act: 'lead', accent: true });
+    renderChips(items);
   }
 
   function aiAvailable() {
@@ -201,6 +208,81 @@
 
   /* ---------------- сценарий заявки ---------------- */
 
+  function peopleChips() {
+    return [
+      { label: '1', act: 'people', value: 1 },
+      { label: '2', act: 'people', value: 2 },
+      { label: '3', act: 'people', value: 3 },
+      { label: '4', act: 'people', value: 4 },
+      { label: '5 и больше', act: 'people', value: 5 }
+    ];
+  }
+
+  function renderDateChips() {
+    if (state.tour && state.tour.dates && state.tour.dates.length) {
+      var items = state.tour.dates.slice(0, 4).map(function (d) {
+        return { label: shortDate(d), act: 'date', value: d };
+      });
+      items.push({ label: 'Другие даты', act: 'date', value: 'уточню у менеджера' });
+      renderChips(items);
+    } else {
+      renderChips([{ label: 'Уточню у менеджера', act: 'date', value: 'уточню у менеджера' }]);
+    }
+  }
+
+  function updateBack() {
+    if (!el.back) return;
+    el.back.hidden = !(state.phase === 'people' || state.phase === 'dates' ||
+      state.phase === 'name' || state.phase === 'phone');
+  }
+
+  function goBack() {
+    el.input.value = '';
+    el.error.textContent = '';
+    el.input.classList.remove('err');
+    if (state.phase === 'people') {
+      state.phase = 'chat';
+      if (!state.tour) {
+        addSys('Вернулись к началу.');
+        renderChips(START_CHIPS);
+      } else {
+        addSys('Вернулись к выбору тура.');
+        var offered = toursByIds(state.offer);
+        if (offered.length) renderTourChips(offered);
+        else renderChips(START_CHIPS);
+      }
+      updateBack();
+      return;
+    }
+    if (state.phase === 'dates') {
+      state.phase = 'people';
+      addMsg('Шаг назад. Сколько человек поедет?', 'bot');
+      renderChips(peopleChips());
+      updateBack();
+      focusInput();
+      return;
+    }
+    if (state.phase === 'name') {
+      state.phase = 'dates';
+      addMsg('Шаг назад — даты. Какие даты?', 'bot');
+      renderDateChips();
+      updateBack();
+      focusInput();
+      return;
+    }
+    if (state.phase === 'phone') {
+      state.phase = 'name';
+      state.phoneDigits = '';
+      el.input.value = '';
+      el.input.inputMode = 'text';
+      el.input.placeholder = 'Спросите про тур: цена, даты, что входит…';
+      addMsg('Шаг назад — имя. Как вас зовут?', 'bot');
+      renderChips([]);
+      updateBack();
+      focusInput();
+    }
+  }
+
   function startLead(tour) {
     if (!tour && !state.tour) {
       state.phase = 'chat';
@@ -210,6 +292,7 @@
         { label: 'Европа', act: 'ask', text: 'Европа' },
         { label: 'Автобусные', act: 'ask', text: 'Автобусные туры' }
       ]);
+      updateBack();
       return;
     }
     state.phase = 'people';
@@ -227,13 +310,8 @@
       addMsg('Хорошо, передам менеджеру. Сначала уточню параметры — так заявка не превратится в «перезвоните и выясните».', 'bot');
     }
     addMsg('Сколько человек поедет?', 'bot');
-    renderChips([
-      { label: '1', act: 'people', value: 1 },
-      { label: '2', act: 'people', value: 2 },
-      { label: '3', act: 'people', value: 3 },
-      { label: '4', act: 'people', value: 4 },
-      { label: '5 и больше', act: 'people', value: 5 }
-    ]);
+    renderChips(peopleChips());
+    updateBack();
     focusInput();
   }
 
@@ -243,15 +321,8 @@
     userSays(n + (n >= 5 ? '+' : '') + ' чел.');
     addMsg('Записал: ' + n + ' чел. Какие даты?', 'bot');
     state.phase = 'dates';
-    if (state.tour && state.tour.dates && state.tour.dates.length) {
-      var items = state.tour.dates.slice(0, 4).map(function (d) {
-        return { label: shortDate(d), act: 'date', value: d };
-      });
-      items.push({ label: 'Другие даты', act: 'date', value: 'уточню у менеджера' });
-      renderChips(items);
-    } else {
-      renderChips([{ label: 'Уточню у менеджера', act: 'date', value: 'уточню у менеджера' }]);
-    }
+    renderDateChips();
+    updateBack();
   }
 
   function setDate(value) {
@@ -261,6 +332,7 @@
     state.phase = 'name';
     addMsg('Как вас зовут?', 'bot');
     renderChips([]);
+    updateBack();
     focusInput();
   }
 
@@ -272,6 +344,7 @@
     el.input.value = '';
     el.input.placeholder = '+375 (29) 123-45-67';
     el.input.inputMode = 'tel';
+    updateBack();
     focusInput();
   }
 
@@ -298,6 +371,7 @@
     addMsg('Готово, ' + state.name + '. Справа — карточка, которую получит менеджер. ' +
       'В рабочем боте она придёт ему в Telegram, и он ответит в течение 15 минут.', 'bot');
     renderChips([{ label: 'Пройти ещё раз', act: 'reset' }]);
+    updateBack();
     showCard();
   }
 
@@ -420,12 +494,13 @@
     el.tgActions.hidden = true;
     el.tgNote.className = 'tg-note';
     el.tgNote.textContent = 'Макет: кнопки работают только внутри этой страницы. В рабочем боте заявка приходит в Telegram менеджеру.';
-    state = { phase: 'chat', tour: null, people: null, date: null, name: '', phoneDigits: '', done: false, taken: false };
+    state = { phase: 'chat', tour: null, people: null, date: null, name: '', phoneDigits: '', done: false, taken: false, offer: [] };
     el.input.value = '';
     el.input.placeholder = 'Спросите про тур: цена, даты, что входит…';
     el.input.inputMode = 'text';
     el.error.textContent = '';
     el.input.classList.remove('err');
+    updateBack();
     start();
   }
 
@@ -510,6 +585,7 @@
 
   el.tgTake.addEventListener('click', takeDialog);
   el.tgForward.addEventListener('click', forwardToBoss);
+  if (el.back) el.back.addEventListener('click', goBack);
 
   /* ---------------- старт ---------------- */
 
@@ -517,6 +593,7 @@
     addMsg('Здравствуйте! Я турбот Синапс. Сезон — новогодние даты. Спросите про тур — цену, даты, что входит, доплаты, визу — или выберите направление.', 'bot');
     addSys('Демо: данные вымышленные, заявки не отправляются, телефон не сохраняется.');
     renderChips(START_CHIPS);
+    updateBack();
   }
 
   fetch('tours.json', { cache: 'no-cache' })
